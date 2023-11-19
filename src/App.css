@@ -45,6 +45,7 @@ h1, h3 {
 
 .table1 thead th {
   font-weight: bold;
+  font-size: 1.3rem;
   text-align: left;
   padding: 1rem;
   border-bottom: 2px solid #fff;
@@ -53,7 +54,9 @@ h1, h3 {
 
 .table1 tbody td {
   padding: 0.75rem;
-  border-bottom: 1px solid #fff; 
+  font-size: 1.1rem;
+  border-bottom: 1px solid #fff;
+  font-weight: bold;
 }
 
 
