@@ -20,6 +20,7 @@ function App() {
   const [data, setData] = useState(initialTeams);
   const [podiumData, setPodiumData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [competitorData, setCompetitorData] = useState([]);
 
   function score(team) {
     return (
@@ -56,6 +57,32 @@ function App() {
     return teamsMedals.sort((a, b) => b.score - a.score);
   };
 
+  const calculateCompetitorScores = (competitors) => {
+    const scores = competitors.reduce((acc, { Atleta, Medalha, Equipe }) => {
+      const key = `${Atleta}-${Equipe}`; // Chave única para cada competidor por equipe
+
+      if (!acc[key]) {
+        acc[key] = { Atleta, Equipe, Gold: 0, Silver: 0, Bronze: 0 };
+      }
+
+      if (Medalha === 'Ouro') acc[key].Gold += 1;
+      else if (Medalha === 'Prata') acc[key].Silver += 1;
+      else if (Medalha === 'Bronze') acc[key].Bronze += 1;
+
+      return acc;
+    }, {});
+
+    const sortedScores = Object.values(scores).map((competitor) => ({
+      ...competitor,
+      TotalPoints:
+        competitor.Gold * 3 + competitor.Silver * 2 + competitor.Bronze,
+    }));
+
+    return sortedScores
+      .sort((a, b) => b.TotalPoints - a.TotalPoints)
+      .slice(0, 3);
+  };
+
   const fetchPodium = async () => {
     const url = `https://sheetdb.io/api/v1/mpd1mwq0f1mha`;
     setIsLoading(true);
@@ -65,7 +92,9 @@ function App() {
       setPodiumData(lastSix);
 
       const updatedData = calculateTeamMedals(response.data, data);
+      const competitorScores = calculateCompetitorScores(response.data);
 
+      setCompetitorData(competitorScores);
       setData(updatedData);
     } catch (error) {
       console.error('Error ', error);
@@ -151,6 +180,64 @@ function App() {
                   </tr>
                 </Flipped>
               ))}
+            </tbody>
+          </table>
+        </Flipper>
+
+        <h3 className="text-center my-4">Top 3</h3>
+
+        <Flipper
+          flipKey={competitorData
+            .map((item) => item.Atleta + item.Equipe)
+            .join()}
+        >
+          <table className="table1 table-hover">
+            <thead>
+              <tr>
+                <th>Atleta</th>
+                <th>Equipe</th>
+                <th>Ouro</th>
+                <th>Prata</th>
+                <th>Bronze</th>
+                <th>Pontuação Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {competitorData.map(
+                (
+                  { Atleta, Equipe, Gold, Silver, Bronze, TotalPoints },
+                  index
+                ) => (
+                  <Flipped
+                    key={`${Atleta}-${Equipe}`}
+                    flipId={`${Atleta}-${Equipe}`}
+                  >
+                    <tr>
+                      <td>{`${index + 1}º ${Atleta}`}</td>
+                      <td>{Equipe}</td>
+                      <td>
+                        <FontAwesomeIcon
+                          icon={faMedal}
+                          className="text-warning"
+                        />{' '}
+                        {Gold}
+                      </td>
+                      <td>
+                        <FontAwesomeIcon
+                          icon={faMedal}
+                          className="text-secondary"
+                        />{' '}
+                        {Silver}
+                      </td>
+                      <td>
+                        <FontAwesomeIcon icon={faMedal} className="bronze" />{' '}
+                        {Bronze}
+                      </td>
+                      <td>{TotalPoints}</td>
+                    </tr>
+                  </Flipped>
+                )
+              )}
             </tbody>
           </table>
         </Flipper>
