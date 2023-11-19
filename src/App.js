@@ -10,18 +10,51 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
 function App() {
-  const [data, setData] = useState([]);
-  const [podiumData, setPodiumData] = useState([]);
+  const initialTeams = [
+    { Equipe: 'Hapkido Botto', Gold: 0, Silver: 0, Bronze: 0 },
+    { Equipe: 'Punho de Aço', Gold: 0, Silver: 0, Bronze: 0 },
+    { Equipe: 'Hapkido de Deus', Gold: 0, Silver: 0, Bronze: 0 },
+    { Equipe: 'Tigre Branco', Gold: 0, Silver: 0, Bronze: 0 },
+  ];
 
+  const [data, setData] = useState(initialTeams);
+  const [podiumData, setPodiumData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   function score(team) {
     return (
-      parseInt(team.Ouro) * 3 +
-      parseInt(team.Prata) * 2 +
+      parseInt(team.Gold) * 3 +
+      parseInt(team.Silver) * 2 +
       parseInt(team.Bronze)
     );
   }
+
+  const calculateTeamMedals = (competitors, teams) => {
+    const medalCounts = competitors.reduce((acc, competitor) => {
+      const { Equipe, Medalha } = competitor;
+
+      if (!acc[Equipe]) {
+        acc[Equipe] = { Gold: 0, Silver: 0, Bronze: 0 };
+      }
+
+      if (Medalha === 'Ouro') acc[Equipe].Gold += 1;
+      else if (Medalha === 'Prata') acc[Equipe].Silver += 1;
+      else if (Medalha === 'Bronze') acc[Equipe].Bronze += 1;
+
+      return acc;
+    }, {});
+
+    const teamsMedals = teams.map((team) => ({
+      ...team,
+      ...medalCounts[team.Equipe],
+    }));
+
+    teamsMedals.forEach((team) => {
+      team['score'] = score(team);
+    });
+
+    return teamsMedals.sort((a, b) => b.score - a.score);
+  };
 
   const fetchPodium = async () => {
     const url = `https://sheetdb.io/api/v1/mpd1mwq0f1mha`;
@@ -30,6 +63,10 @@ function App() {
       const response = await axios.get(url);
       const lastSix = response.data.slice(-6).reverse();
       setPodiumData(lastSix);
+
+      const updatedData = calculateTeamMedals(response.data, data);
+
+      setData(updatedData);
     } catch (error) {
       console.error('Error ', error);
     } finally {
@@ -37,31 +74,13 @@ function App() {
     }
   };
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    const url = `https://sheetdb.io/api/v1/9dyhntggmeub8`;
-
-    try {
-      const response = await axios.get(url);
-      const orderedData = response.data.sort(
-        (a, b) => score(b) - score(a)
-      );
-      setData(orderedData);
-    } catch (error) {
-      console.error('Error fetching data: ', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     fetchPodium();
-    fetchData();
   }, []);
 
   return (
-    <div className='container'>
-      <div className='content'>
+    <div className="container">
+      <div className="content">
         <h1 className="text-center my-4">Torneio Interno 2023</h1>
         <Flipper flipKey={data.map((item) => item.Equipe).join()}>
           <table className="table1 table-hover">
@@ -80,21 +99,24 @@ function App() {
                   <tr>
                     <td>{`${index + 1}º ${item.Equipe}`}</td>
                     <td>
-                      <FontAwesomeIcon icon={faMedal} className="text-warning" />{' '}
-                      {item.Ouro}
+                      <FontAwesomeIcon
+                        icon={faMedal}
+                        className="text-warning"
+                      />{' '}
+                      {item.Gold}
                     </td>
                     <td>
                       <FontAwesomeIcon
                         icon={faMedal}
                         className="text-secondary"
                       />{' '}
-                      {item.Prata}
+                      {item.Silver}
                     </td>
                     <td>
                       <FontAwesomeIcon icon={faMedal} className="bronze" />{' '}
                       {item.Bronze}
                     </td>
-                    <td>{score(item)}</td>
+                    <td>{item.score}</td>
                   </tr>
                 </Flipped>
               ))}
@@ -105,45 +127,50 @@ function App() {
         <h3 className="text-center my-4">Últimas premiações</h3>
 
         <Flipper flipKey={podiumData.join('')}>
-        <table className="table1 table-hover">
-          <thead>
-            <tr>
-              <th>Equipe</th>
-              <th>Atleta</th>
-              <th>Modalidade</th>
-              <th>Faixa</th>
-              <th>Medalha</th>
-              <th>Categoria</th>
-            </tr>
-          </thead>
-          <tbody>
-            {podiumData.map((competidor, index) => (
-              <Flipped key={index} flipId={competidor.Nome}>
-                <tr>
-                  <td>{competidor.Equipe}</td>
-                  <td>{competidor.Atleta}</td>
-                  <td>{competidor.Modalidade}</td>
-                  <td>{competidor.Faixa}</td>
-                  <td>{competidor.Medalha}</td>
-                  <td>{competidor.Categoria}</td>
-                </tr>
-              </Flipped>
-            ))}
-          </tbody>
-        </table>
-      </Flipper>
+          <table className="table1 table-hover">
+            <thead>
+              <tr>
+                <th>Equipe</th>
+                <th>Atleta</th>
+                <th>Modalidade</th>
+                <th>Faixa</th>
+                <th>Medalha</th>
+                <th>Categoria</th>
+              </tr>
+            </thead>
+            <tbody>
+              {podiumData.map((competidor, index) => (
+                <Flipped key={index} flipId={competidor.Nome}>
+                  <tr>
+                    <td>{competidor.Equipe}</td>
+                    <td>{competidor.Atleta}</td>
+                    <td>{competidor.Modalidade}</td>
+                    <td>{competidor.Faixa}</td>
+                    <td>{competidor.Medalha}</td>
+                    <td>{competidor.Categoria}</td>
+                  </tr>
+                </Flipped>
+              ))}
+            </tbody>
+          </table>
+        </Flipper>
 
-      <div className="d-flex justify-content-center align-items-center mb-3">
+        <div className="d-flex justify-content-center align-items-center mb-3">
           {isLoading ? (
             <div className="text-center mt-3">
-              <FontAwesomeIcon icon={faSpinner} spin size="4x" style={{ color: 'white' }} />
+              <FontAwesomeIcon
+                icon={faSpinner}
+                spin
+                size="4x"
+                style={{ color: 'white' }}
+              />
             </div>
           ) : (
-            <button onClick={() => { fetchData(); fetchPodium(); }}  class="btn btn-warning mt-3 fs-4">
+            <button onClick={fetchPodium} class="btn btn-warning mt-3 fs-4">
               Atualizar
             </button>
           )}
-      </div>
+        </div>
       </div>
     </div>
   );
