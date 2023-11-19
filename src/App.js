@@ -58,25 +58,28 @@ function App() {
   };
 
   const calculateCompetitorScores = (competitors) => {
-    const scores = competitors.reduce((acc, { Atleta, Medalha, Equipe, Faixa }) => {
-      const key = `${Atleta}-${Equipe}`;
+    const scores = competitors.reduce(
+      (acc, { Atleta, Medalha, Equipe, Faixa }) => {
+        const key = `${Atleta}-${Equipe}`;
 
-      if (!acc[key]) {
-        acc[key] = { Atleta, Equipe, Faixa, Gold: 0, Silver: 0, Bronze: 0 };
-      }
+        if (!acc[key]) {
+          acc[key] = { Atleta, Equipe, Faixa, Gold: 0, Silver: 0, Bronze: 0 };
+        }
 
-      if (Medalha === 'Ouro') acc[key].Gold += 1;
-      else if (Medalha === 'Prata') acc[key].Silver += 1;
-      else if (Medalha === 'Bronze') acc[key].Bronze += 1;
+        if (Medalha === 'Ouro') acc[key].Gold += 1;
+        else if (Medalha === 'Prata') acc[key].Silver += 1;
+        else if (Medalha === 'Bronze') acc[key].Bronze += 1;
 
-      return acc;
-    }, {});
+        return acc;
+      },
+      {}
+    );
 
     const sortedScores = Object.values(scores).map((competitor) => ({
       ...competitor,
       TotalPoints:
         competitor.Gold * 3 + competitor.Silver * 2 + competitor.Bronze,
-      Faixa: competitor.Faixa
+      Faixa: competitor.Faixa,
     }));
 
     return sortedScores
@@ -84,7 +87,7 @@ function App() {
       .slice(0, 3);
   };
 
-  let baseUrl = "https://sheetdb.io/api/v1/7i662u4l7a3w5"
+  let baseUrl = 'https://sheetdb.io/api/v1/7i662u4l7a3w5';
 
   const fetchPodium = async () => {
     const url = baseUrl;
@@ -101,8 +104,8 @@ function App() {
       setCompetitorData(competitorScores);
       setData(updatedData);
     } catch (error) {
-      if(error.message === 'Request failed with status code 429'){
-        baseUrl = "https://sheetdb.io/api/v1/903hywz10drfe"
+      if (error.message === 'Request failed with status code 429') {
+        baseUrl = 'https://sheetdb.io/api/v1/903hywz10drfe';
         fetchPodium();
       }
     } finally {
@@ -213,7 +216,15 @@ function App() {
                 <tbody>
                   {competitorData.map(
                     (
-                      { Atleta, Equipe, Gold, Silver, Bronze, TotalPoints, Faixa },
+                      {
+                        Atleta,
+                        Equipe,
+                        Gold,
+                        Silver,
+                        Bronze,
+                        TotalPoints,
+                        Faixa,
+                      },
                       index
                     ) => (
                       <Flipped
@@ -239,7 +250,10 @@ function App() {
                             {Silver}
                           </td>
                           <td>
-                            <FontAwesomeIcon icon={faMedal} className="bronze" />{' '}
+                            <FontAwesomeIcon
+                              icon={faMedal}
+                              className="bronze"
+                            />{' '}
                             {Bronze}
                           </td>
                           <td>{TotalPoints}</td>
@@ -251,23 +265,22 @@ function App() {
               </table>
             </Flipper>
           </div>
-        </div>
-
-        <div className="d-flex justify-content-center align-items-center mb-3">
-          {isLoading ? (
-            <div className="text-center mt-3">
-              <FontAwesomeIcon
-                icon={faSpinner}
-                spin
-                size="4x"
-                style={{ color: 'white' }}
-              />
-            </div>
-          ) : (
-            <button onClick={fetchPodium} class="btn btn-warning mt-3 fs-4">
-              Atualizar
-            </button>
-          )}
+          <div className="d-flex justify-content-center align-items-center mb-3">
+            {isLoading ? (
+              <div className="text-center mt-3">
+                <FontAwesomeIcon
+                  icon={faSpinner}
+                  spin
+                  size="4x"
+                  style={{ color: 'white' }}
+                />
+              </div>
+            ) : (
+              <button onClick={fetchPodium} class="btn btn-warning mt-3 fs-4">
+                Atualizar
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
