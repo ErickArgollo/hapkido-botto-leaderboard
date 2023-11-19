@@ -84,8 +84,11 @@ function App() {
       .slice(0, 3);
   };
 
+  let baseUrl = "https://sheetdb.io/api/v1/7i662u4l7a3w5"
+
   const fetchPodium = async () => {
-    const url = `https://sheetdb.io/api/v1/mpd1mwq0f1mha`;
+    const url = baseUrl;
+
     setIsLoading(true);
     try {
       const response = await axios.get(url);
@@ -98,7 +101,10 @@ function App() {
       setCompetitorData(competitorScores);
       setData(updatedData);
     } catch (error) {
-      console.error('Error ', error);
+      if(error.message === 'Request failed with status code 429'){
+        baseUrl = "https://sheetdb.io/api/v1/903hywz10drfe"
+        fetchPodium();
+      }
     } finally {
       setIsLoading(false);
     }
