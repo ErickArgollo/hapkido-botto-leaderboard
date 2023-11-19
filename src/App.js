@@ -58,11 +58,11 @@ function App() {
   };
 
   const calculateCompetitorScores = (competitors) => {
-    const scores = competitors.reduce((acc, { Atleta, Medalha, Equipe }) => {
-      const key = `${Atleta}-${Equipe}`; // Chave única para cada competidor por equipe
+    const scores = competitors.reduce((acc, { Atleta, Medalha, Equipe, Faixa }) => {
+      const key = `${Atleta}-${Equipe}`;
 
       if (!acc[key]) {
-        acc[key] = { Atleta, Equipe, Gold: 0, Silver: 0, Bronze: 0 };
+        acc[key] = { Atleta, Equipe, Faixa, Gold: 0, Silver: 0, Bronze: 0 };
       }
 
       if (Medalha === 'Ouro') acc[key].Gold += 1;
@@ -76,6 +76,7 @@ function App() {
       ...competitor,
       TotalPoints:
         competitor.Gold * 3 + competitor.Silver * 2 + competitor.Bronze,
+      Faixa: competitor.Faixa
     }));
 
     return sortedScores
@@ -110,137 +111,141 @@ function App() {
   return (
     <div className="container">
       <div className="content">
-        <h1 className="text-center my-4">Torneio Interno 2023</h1>
-        <Flipper flipKey={data.map((item) => item.Equipe).join()}>
-          <table className="table1 table-hover">
-            <thead>
-              <tr>
-                <th>Equipe</th>
-                <th>Ouro</th>
-                <th>Prata</th>
-                <th>Bronze</th>
-                <th>Pontuação Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((item, index) => (
-                <Flipped key={item.Equipe} flipId={item.Equipe}>
+        <div>
+          <div>
+            <h1 className="text-center my-4">Torneio Interno 2023</h1>
+            <Flipper flipKey={data.map((item) => item.Equipe).join()}>
+              <table className="table1 table-hover">
+                <thead>
                   <tr>
-                    <td>{`${index + 1}º ${item.Equipe}`}</td>
-                    <td>
-                      <FontAwesomeIcon
-                        icon={faMedal}
-                        className="text-warning"
-                      />{' '}
-                      {item.Gold}
-                    </td>
-                    <td>
-                      <FontAwesomeIcon
-                        icon={faMedal}
-                        className="text-secondary"
-                      />{' '}
-                      {item.Silver}
-                    </td>
-                    <td>
-                      <FontAwesomeIcon icon={faMedal} className="bronze" />{' '}
-                      {item.Bronze}
-                    </td>
-                    <td>{item.score}</td>
+                    <th>Equipe</th>
+                    <th>Ouro</th>
+                    <th>Prata</th>
+                    <th>Bronze</th>
+                    <th>Pontuação Total</th>
                   </tr>
-                </Flipped>
-              ))}
-            </tbody>
-          </table>
-        </Flipper>
-
-        <h3 className="text-center my-4">Últimas premiações</h3>
-
-        <Flipper flipKey={podiumData.join('')}>
-          <table className="table1 table-hover">
-            <thead>
-              <tr>
-                <th>Equipe</th>
-                <th>Atleta</th>
-                <th>Modalidade</th>
-                <th>Faixa</th>
-                <th>Medalha</th>
-                <th>Categoria</th>
-              </tr>
-            </thead>
-            <tbody>
-              {podiumData.map((competidor, index) => (
-                <Flipped key={index} flipId={competidor.Nome}>
+                </thead>
+                <tbody>
+                  {data.map((item, index) => (
+                    <Flipped key={item.Equipe} flipId={item.Equipe}>
+                      <tr>
+                        <td>{`${index + 1}º ${item.Equipe}`}</td>
+                        <td>
+                          <FontAwesomeIcon
+                            icon={faMedal}
+                            className="text-warning"
+                          />{' '}
+                          {item.Gold}
+                        </td>
+                        <td>
+                          <FontAwesomeIcon
+                            icon={faMedal}
+                            className="text-secondary"
+                          />{' '}
+                          {item.Silver}
+                        </td>
+                        <td>
+                          <FontAwesomeIcon icon={faMedal} className="bronze" />{' '}
+                          {item.Bronze}
+                        </td>
+                        <td>{item.score}</td>
+                      </tr>
+                    </Flipped>
+                  ))}
+                </tbody>
+              </table>
+            </Flipper>
+            <h3 className="text-center my-4">Últimas premiações</h3>
+            <Flipper flipKey={podiumData.join('')}>
+              <table className="table1 table-hover">
+                <thead>
                   <tr>
-                    <td>{competidor.Equipe}</td>
-                    <td>{competidor.Atleta}</td>
-                    <td>{competidor.Modalidade}</td>
-                    <td>{competidor.Faixa}</td>
-                    <td>{competidor.Medalha}</td>
-                    <td>{competidor.Categoria}</td>
+                    <th>Equipe</th>
+                    <th>Atleta</th>
+                    <th>Modalidade</th>
+                    <th>Faixa</th>
+                    <th>Medalha</th>
+                    <th>Categoria</th>
                   </tr>
-                </Flipped>
-              ))}
-            </tbody>
-          </table>
-        </Flipper>
-
-        <h3 className="text-center my-4">Top 3</h3>
-
-        <Flipper
-          flipKey={competitorData
-            .map((item) => item.Atleta + item.Equipe)
-            .join()}
-        >
-          <table className="table1 table-hover">
-            <thead>
-              <tr>
-                <th>Atleta</th>
-                <th>Equipe</th>
-                <th>Ouro</th>
-                <th>Prata</th>
-                <th>Bronze</th>
-                <th>Pontuação Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {competitorData.map(
-                (
-                  { Atleta, Equipe, Gold, Silver, Bronze, TotalPoints },
-                  index
-                ) => (
-                  <Flipped
-                    key={`${Atleta}-${Equipe}`}
-                    flipId={`${Atleta}-${Equipe}`}
-                  >
-                    <tr>
-                      <td>{`${index + 1}º ${Atleta}`}</td>
-                      <td>{Equipe}</td>
-                      <td>
-                        <FontAwesomeIcon
-                          icon={faMedal}
-                          className="text-warning"
-                        />{' '}
-                        {Gold}
-                      </td>
-                      <td>
-                        <FontAwesomeIcon
-                          icon={faMedal}
-                          className="text-secondary"
-                        />{' '}
-                        {Silver}
-                      </td>
-                      <td>
-                        <FontAwesomeIcon icon={faMedal} className="bronze" />{' '}
-                        {Bronze}
-                      </td>
-                      <td>{TotalPoints}</td>
-                    </tr>
-                  </Flipped>
-                )
-              )}
-            </tbody>
-          </table>
-        </Flipper>
+                </thead>
+                <tbody>
+                  {podiumData.map((competidor, index) => (
+                    <Flipped key={index} flipId={competidor.Nome}>
+                      <tr>
+                        <td>{competidor.Equipe}</td>
+                        <td>{competidor.Atleta}</td>
+                        <td>{competidor.Modalidade}</td>
+                        <td>{competidor.Faixa}</td>
+                        <td>{competidor.Medalha}</td>
+                        <td>{competidor.Categoria}</td>
+                      </tr>
+                    </Flipped>
+                  ))}
+                </tbody>
+              </table>
+            </Flipper>
+          </div>
+          <div>
+            <h3 className="text-center my-4">Top 3</h3>
+            <Flipper
+              flipKey={competitorData
+                .map((item) => item.Atleta + item.Equipe)
+                .join()}
+            >
+              <table className="table1 table-hover">
+                <thead>
+                  <tr>
+                    <th>Atleta</th>
+                    <th>Equipe</th>
+                    <th>Faixa</th>
+                    <th>Ouro</th>
+                    <th>Prata</th>
+                    <th>Bronze</th>
+                    <th>Pontuação Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {competitorData.map(
+                    (
+                      { Atleta, Equipe, Gold, Silver, Bronze, TotalPoints, Faixa },
+                      index
+                    ) => (
+                      <Flipped
+                        key={`${Atleta}-${Equipe}`}
+                        flipId={`${Atleta}-${Equipe}`}
+                      >
+                        <tr>
+                          <td>{`${index + 1}º ${Atleta}`}</td>
+                          <td>{Equipe}</td>
+                          <td>{Faixa}</td>
+                          <td>
+                            <FontAwesomeIcon
+                              icon={faMedal}
+                              className="text-warning"
+                            />{' '}
+                            {Gold}
+                          </td>
+                          <td>
+                            <FontAwesomeIcon
+                              icon={faMedal}
+                              className="text-secondary"
+                            />{' '}
+                            {Silver}
+                          </td>
+                          <td>
+                            <FontAwesomeIcon icon={faMedal} className="bronze" />{' '}
+                            {Bronze}
+                          </td>
+                          <td>{TotalPoints}</td>
+                        </tr>
+                      </Flipped>
+                    )
+                  )}
+                </tbody>
+              </table>
+            </Flipper>
+          </div>
+        </div>
 
         <div className="d-flex justify-content-center align-items-center mb-3">
           {isLoading ? (
