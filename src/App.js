@@ -250,7 +250,7 @@ function App() {
                 </thead>
                 <tbody>
                   {podiumData.map((competidor, index) => (
-                    <Flipped key={index} flipId={competidor.Nome}>
+                    <Flipped key={index} flipId={competidor.Atleta}>
                       <tr>
                         <td>{competidor.Equipe}</td>
                         <td>{competidor.Atleta}</td>
