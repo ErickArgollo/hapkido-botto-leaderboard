@@ -12,7 +12,6 @@ import { Flipper, Flipped } from 'react-flip-toolkit';
 function App() {
   const initialTeams = [
     { Equipe: 'Hapkido Botto', Gold: 0, Silver: 0, Bronze: 0 },
-    { Equipe: 'Punho de Aço', Gold: 0, Silver: 0, Bronze: 0 },
     { Equipe: 'Hapkido de Deus', Gold: 0, Silver: 0, Bronze: 0 },
     { Equipe: 'Tigre Branco', Gold: 0, Silver: 0, Bronze: 0 },
   ];
